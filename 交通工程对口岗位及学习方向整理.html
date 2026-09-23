@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>招聘岗位</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8;
+    color: #333;
+    line-height: 1.6;
+  }
+  header {
+    background: #1f6feb;
+    color: #fff;
+    padding: 18px 24px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 16px auto;
+    padding: 0 16px;
+    align-items: start;
+  }
+  .left-col { min-width: 0; padding-left: 0; }
+  .right-col { position: sticky; top: 16px; }
+  .left-col .wrap-inner { padding: 0; }
+
+  /* 便签面板 */
+  .sticky-panel {
+    background: #fff7c2;
+    border-radius: 6px;
+    box-shadow:
+      0 1px 1px rgba(0,0,0,.1),
+      0 2px 8px rgba(0,0,0,.08);
+    padding: 16px 18px 18px;
+    border: 1px solid #e8d97a;
+    position: relative;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .sticky-panel::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 6px;
+    background: linear-gradient(to bottom, #ffd95a, #f0b400);
+    border-radius: 6px 0 0 6px;
+  }
+  .sticky-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #6b4f00;
+    margin-bottom: 10px;
+  }
+  .sticky-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-weight: 600;
+  }
+  .sticky-body p { margin-bottom: 10px; }
+  .sticky-body p:last-child { margin-bottom: 0; }
+  .sticky-body ul { margin: 0 0 10px; padding-left: 20px; }
+  .sticky-body li { margin-bottom: 4px; }
+  .sticky-empty { color: #b59b1f; font-style: italic; }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .right-col { position: static; }
+  }
+
+  /* 列表 */
+  .job-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    transition: box-shadow .15s, transform .15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .job-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.12); transform: translateY(-1px); }
+  .job-company { font-size: 13px; color: #888; }
+  .job-position { font-size: 17px; font-weight: 600; color: #1f6feb; margin-top: 2px; }
+  .job-arrow { color: #bbb; font-size: 20px; }
+  .empty { text-align: center; color: #999; padding: 60px 0; }
+
+  /* 详情 */
+  .back {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: #1f6feb;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .detail-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .detail-card h1 { font-size: 22px; margin-bottom: 4px; }
+  .detail-company { color: #666; font-size: 14px; margin-bottom: 16px; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    background: #f0f6ff; border-radius: 6px;
+    padding: 12px 16px; margin-bottom: 24px;
+    font-size: 14px; color: #444;
+  }
+  .meta span b { color: #1f6feb; }
+  h2 {
+    font-size: 17px; color: #1f6feb;
+    border-left: 4px solid #1f6feb;
+    padding-left: 10px; margin: 20px 0 12px;
+  }
+  ol, ul { padding-left: 22px; }
+  li { margin-bottom: 0px; }
+  .contact { margin-top: 20px; padding-top: 16px; border-top: 1px dashed #ddd; font-size: 14px; color: #666; }
+</style>
+</head>
+<body>
+  <header>招聘岗位</header>
+  <div class="layout">
+    <div class="left-col"><div id="app"></div></div>
+    <aside class="right-col">
+      <div class="sticky-panel">
+        <div class="sticky-title">📝 JD 总结</div>
+        <div class="sticky-body" id="stickyBody"><b>做这个工作主要是为了了解你专业对口岗位都需要什么技能，好让你规划接下来的学习计划</b>。 这些岗位都是官网仍在招的日常实习岗。
+
+总的来说，可以分成以下几种：
+1. 智能交通类的国企，基本要求是AutoCAD、office；懂AI，会数据分析属于加分项。（要求比较基础， 但是岗位也比较少， 有些可以直接转正。）
+
+2. 互联网公司，基本要求AutoCAD、office、python、会数据分析，然后最好是会点简单的SQL语句，会使用AI辅助工作，会要求了解GIS，不知道你们学不学arcgis这个软件。（这类型岗位要求最高， 可选择面也最广。）
+
+3. 事业单位还有一些国企，几乎没有岗位要求，只要你是相关专业的就可以去报，他们的招聘方式类似于考公考编，需要通过考试进去。
+
+4. 还有就是一些工程，测绘的岗位，这类会要求你驻场（即去工地），这个就不建议了。
+
+5. 产品、运营等岗位，这就和你的专业无关。
+<ul><li>数据运营，要求会数据分析，根据数据做一些决策。</li><li>内容运营，例如抖音号，直播，小红书号等等的，内容生产。感觉这个你也可以尝试下。毕竟你有1.8w粉丝。</li><li>还有其他的，基本都在围绕内容创作，策划，数据分析等。</li></ul>
+
+大致就是这些吧。AutoCAD+python+数据分析+AI（办公用workBuddy的貌似挺多）。学习中有疑惑的话，随时都可以来问我，很开心帮你解决。至于学习路径及参考资料，如果你确定要学的话，我也可以帮你一起搜集整理。
+
+<p style="text-align: right; color: indianred;">OK, fine. 加油！周钰莹！</p></div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+// ===== 招聘数据（在此追加新岗位即可）=====
+const jobs = [
+  {
+    id: 1,
+    company: "江西都市交通",
+    position: "助理交通工程师",
+    count: "2名",
+    location: "江西·南昌",
+    salary: "3-5K/月（五险一金+项目奖金）",
+    duties: [
+      "协助完成交通影响评价、交通规划方案的数据收集、分析与报告撰写",
+      "参与交通设计图纸绘制、仿真模型搭建及交通组织优化方案制定",
+      "配合项目负责人开展现场调研、方案汇报及客户沟通工作",
+      "整理项目资料，完成技术文档归档与阶段性成果交付"
+    ],
+    requirements: [
+      "专业背景：交通工程、交通规划、交通运输规划与管理等相关专业本科及以上学历",
+      "技能要求：掌握 AutoCAD、VISSIM/TransCAD 等专业软件，熟悉 Office 办公软件；具备基础数据分析能力，了解交通规划相关规范标准",
+      "综合素质：逻辑清晰、责任心强，具有良好的沟通能力和团队协作意识",
+      "加分项：有交通类项目实习经验或科研经历者优先"
+    ],
+    welfare: [
+      "基础薪资 3-5K + 项目奖金（按贡献分配）",
+      "五险一金、带薪年假、节日福利",
+      "专业导师一对一培养，参与全流程项目实践",
+      "清晰的职业晋升通道，定期技能培训"
+    ],
+    contact: "应聘方式：请将简历+作品集（如有）发送至 307369734@qq.com，邮件标题格式：【助理工程师应聘】姓名+毕业院校+专业"
+  },
+  {
+    id: 2,
+    company: "字节跳动",
+    position: "运营实习生（路网数据方向）-业务中台",
+    count: "若干",
+    location: "上海",
+    salary: "面议",
+    duties: [
+      "协助建立和维护路网数据质量评估体系，利用自动化工具和人工抽检，监控道路拓扑错误、禁限行遗漏、新增道路缺失等关键指标",
+      "参与处理用户反馈、作业上报及客户投诉，协助优化「报错-核实-修复-反馈」的闭环运营流程，提升问题解决效率",
+      "协助进行多源数据（如交管、第三方供应商、轨迹挖掘数据）的接入协调与一致性核验",
+      "针对重大交通事件（如大型封路、自然灾害等），协助制定并执行临时路网管控运营方案，保障导航与调度业务平稳运行"
+    ],
+    requirements: [
+      "2027届本科及以上学历在读，地理信息系统（GIS）、测绘、交通运输、计算机、数据科学、物流工程等相关专业",
+      "数据基本功扎实，能熟练使用 SQL 提取数据，并利用 Excel 或 Python 进行数据清洗与分析",
+      "了解 GIS 基础原理，能操作 QGIS 或 ArcGIS 进行简单的空间数据校验与可视化",
+      "具备较强的逻辑拆解能力，能清晰梳理复杂的运营流转环节",
+      "每周可实习 4 天，持续实习 3 个月",
+      "有相关的项目或实习经验者优先"
+    ],
+    welfare: [],
+    contact: "应聘方式：通过字节跳动校园招聘官网投递 https://jobs.bytedance.com/campus/position/7646630359173679413/detail（职位 ID：A103297A）"
+  },
+  {
+    id: 3,
+    company: "浙江数智交院科技股份有限公司",
+    position: "低空经济规划设计实习生",
+    count: "2名",
+    location: "杭州·西湖区",
+    salary: "100-150元/天",
+    duties: [
+      "协助进行低空航线、起降点、空域划分等基础规划数据的收集与整理；对低空空域的运行效率、安全性、环境影响进行分析",
+      "参与低空经济相关政策法规的研究和资料汇编工作",
+      "协助制作规划方案图件、演示文稿及技术报告"
+    ],
+    requirements: [
+      "城乡规划、交通工程、航空航天、地理信息系统或相关专业在校本科高年级学生或研究生",
+      "熟练使用办公软件、AutoCAD、Photoshop、Adobe Illustrator、ArcGIS/QGIS 等相关软件",
+      "能够运用 1-2 款主流 AI 大语言模型协助完成工作",
+      "有实际参与规划设计项目或竞赛的经验者为佳"
+    ],
+    welfare: [
+      "节日福利、年终奖、五险一金、节日礼物、包吃",
+      "交通补助、补充医疗保险、绩效奖金、通讯津贴、餐补",
+      "定期体检、午餐补助、技能培训、外派津贴、带薪年假",
+      "员工旅游、岗位晋升、高新技术企业"
+    ],
+    contact: "应聘方式：通过全职招聘网投递 https://www.quanzhi.com/job/69489e8336ef97add99b582d（实习 5天/周，6个月，截止 2027-02-01）"
+  },
+  {
+    id: 4,
+    company: "深圳市城市交通规划设计研究中心（SUTPC）",
+    position: "智能交通岗",
+    count: "2名",
+    location: "深圳·龙华区",
+    salary: "面议",
+    duties: [
+      "参与智能立体交通网、车路协同、智慧路口等系统方案设计与实施",
+      "基于交通大数据开展出行特征分析、需求预测与治理策略研究",
+      "将数字孪生、AI 大模型等技术融入交通规划与运营场景",
+      "参与低空经济、交能融合等新赛道的创新项目，拓展职业发展空间"
+    ],
+    requirements: [
+      "熟悉交通工程/交通信息与控制工程/计算机等学科基础知识",
+      "具有信息化、大数据、云计算、车路协同等相关项目管理或课题研究能力",
+      "对监控、收费、通信等高速公路机电系统有一定了解",
+      "熟练掌握 CAD 绘图软件及 Office 办公软件",
+      "具备较强的自主学习能力和良好的沟通交流能力，适应能力强，富有责任心"
+    ],
+    welfare: [],
+    contact: "应聘方式：通过大易招聘平台投递 https://sc.hotjob.cn/wt/sutpc/web/index/webPositionN310!getOnePosition?postId=145814&recruitType=1&brandCode=1&importPost=0&columnId=1（发布于 2026-09-04）"
+  },
+  {
+    id: 5,
+    company: "广州市交通规划研究院有限公司",
+    position: "实习生（2026年实习生招聘）",
+    count: "若干",
+    location: "广州",
+    salary: "面议",
+    duties: [
+      "招聘转正 OFFER：表现优异者可优先获得招聘转正机会",
+      "导师带教：资深导师带教培养机制，夯实基础，传授经验",
+      "岗位赋能：在广阔的发展平台下，充分锻炼行业必备技能",
+      "项目实践：一线项目实践，在实战中提升个人专业能力",
+      "实习证明：国企实习证明，满足院校必修学分要求"
+    ],
+    requirements: [
+      "交通规划类：交通运输规划与管理、交通工程、交通规划、交通信息与控制、物流管理等相关专业",
+      "国土空间规划类：城乡规划、建筑学、人文地理学、土地资源管理、测绘等相关专业",
+      "大数据类：计算机科学与技术、软件工程、人工智能、地理信息系统等相关专业"
+    ],
+    welfare: [
+      "实习补贴",
+      "用餐补贴"
+    ],
+    contact: "应聘方式：详见招聘公告 https://www.gtpr.cn/recruitment/index_27.html（发布于 2026-02-10）"
+  },
+  {
+    id: 6,
+    company: "苏交科集团股份有限公司（JSTI）",
+    position: "交通规划（含智慧交通方向）（2027届）",
+    count: "若干",
+    location: "南京·建邺区",
+    salary: "面议",
+    duties: [
+      "方向1：从事交通规划研究与设计（含智慧公路方向）",
+      "方向2：开展区域交通网络规划、方案评估及交通数字化转型咨询"
+    ],
+    requirements: [
+      "专业要求：交通规划/交通运输/交通工程/智慧交通相关专业",
+      "学历要求：本科及以上",
+      "职位性质：全职"
+    ],
+    welfare: [],
+    contact: "应聘方式：通过苏交科校园招聘官网投递 https://app.mokahr.com/campus-recruitment/jsti/144121#/job/785e5a05-a689-43bd-9adf-a3433eca2902（2027届校招，招聘邮箱 zhaopin@jsti.com）"
+  },
+  {
+    id: 7,
+    company: "苏交科集团股份有限公司（JSTI）",
+    position: "空域交通管理（2027届）",
+    count: "若干",
+    location: "南京·建邺区",
+    salary: "面议",
+    duties: [
+      "从事民航机场工程咨询，开展空域管理、无人机及低空经济规划研究"
+    ],
+    requirements: [
+      "专业要求：交通工程/机场工程/交通运输（空管方向）相关专业",
+      "学历要求：硕士及以上",
+      "职位性质：全职"
+    ],
+    welfare: [],
+    contact: "应聘方式：通过苏交科校园招聘官网投递 https://app.mokahr.com/campus-recruitment/jsti/144121#/job/8185607c-0287-4471-948c-5223003bf34e（2027届校招，招聘邮箱 zhaopin@jsti.com）"
+  },
+  {
+    id: 8,
+    company: "国聘（iguopin.com）",
+    position: "科创管理岗",
+    count: "若干",
+    location: "未注明",
+    salary: "面议",
+    duties: [],
+    requirements: [
+      "大学本科学历，交通运输工程、交通信息工程及控制、计算机、人工智能、数据科学与大数据技术、自动化等相关专业，研究生及以上学历优先",
+      "熟悉交通领域科研创新方向，具备交通大数据分析、人工智能算法、智能交通系统、车路协同、自动驾驶等任一板块科研基础；有参与科研项目、发表学术论文、获得学科竞赛奖项或申请相关专利者优先",
+      "具有良好的沟通协调、语言表达和团队协作能力，具备较强的问题观察分析能力和执行力，对交通行业及相关新兴领域有浓厚兴趣，愿意持续学习相关专业知识和技能",
+      "身体健康，抗压能力强，能适应多任务并行的工作节奏"
+    ],
+    welfare: [],
+    contact: "来源：https://www.iguopin.com/job/detail?id=213718554820805479"
+  },
+  {
+    id: 9,
+    company: "南昌市环境工程评估中心（隶属南昌市政检验检测认证集团有限公司）",
+    position: "水生态环境专员（实习生）",
+    count: "1名",
+    location: "南昌市红谷滩区怡园路1166号副楼4层",
+    salary: "实习补贴，面议",
+    duties: [
+      "熟练使用 Excel、SPSS 等软件，完成水环境质量监测数据的收集、整理与统计分析，编制各类数据报表",
+      "熟练使用 WPS、Word 等软件，完成水环境相关工作报告、总结、方案等文稿的起草与撰写，协助做好水环境应急处置与信息管理",
+      "熟练使用 ArcGIS 等软件，完成地理信息数据处理，绘制水系图"
+    ],
+    requirements: [
+      "本科及以上学历，地理信息科学、地理信息工程、遥感科学与技术、环境工程、环境科学、应急管理等相关专业",
+      "具备资料整理、文件编制、统筹管理等相关工作经历优先",
+      "工作严谨细致，责任心强，具备良好的团队协作能力与执行力",
+      "能保证每周至少 5 天在岗实习，实习周期不少于 2 个月"
+    ],
+    welfare: [
+      "提供实习补贴（具体面议）",
+      "提供正规实习证明"
+    ],
+    contact: "报名时间：即日起至 2026-05-31。报名材料：个人简历、成绩单、在读证明。投递邮箱：1137940781@qq.com（邮件主题：地理信息专员实习+姓名+学校+专业）。招聘流程：简历筛选→面试→录用通知。来源：https://gsgl.juwp.edu.cn/info/1222/20302.htm"
+  }
+];
+
+const app = document.getElementById("app");
+
+function renderList() {
+  app.innerHTML = jobs.length
+    ? jobs.map(j => `
+      <div class="job-card" onclick="location.hash='#/job/${j.id}'">
+        <div>
+          <div class="job-company">${j.company}</div>
+          <div class="job-position">${j.position}</div>
+        </div>
+        <div class="job-arrow">›</div>
+      </div>`).join("")
+    : `<div class="empty">暂无招聘岗位</div>`;
+}
+
+function renderDetail(id) {
+  const j = jobs.find(x => x.id === Number(id));
+  if (!j) { location.hash = "#/"; return; }
+  app.innerHTML = `
+    <div class="back" onclick="location.hash='#/'">← 返回列表</div>
+    <div class="detail-card">
+      <h1>${j.position}</h1>
+      <div class="detail-company">${j.company}</div>
+      <div class="meta">
+        <span>招聘人数：<b>${j.count}</b></span>
+        <span>工作地点：<b>${j.location}</b></span>
+        <span>薪资范围：<b>${j.salary}</b></span>
+      </div>
+
+      ${j.duties && j.duties.length ? `<h2>岗位详情</h2><ol>${j.duties.map(d => `<li>${d}</li>`).join("")}</ol>` : ""}
+
+      <h2>任职要求</h2>
+      <ul>${j.requirements.map(r => `<li>${r}</li>`).join("")}</ul>
+
+      ${j.welfare && j.welfare.length ? `<h2>福利待遇</h2><ul>${j.welfare.map(w => `<li>${w}</li>`).join("")}</ul>` : ""}
+
+      <div class="contact">${j.contact}</div>
+    </div>`;
+}
+
+function router() {
+  const m = location.hash.match(/^#\/job\/(\d+)/);
+  if (m) renderDetail(m[1]);
+  else renderList();
+}
+
+window.addEventListener("hashchange", router);
+
+router();
+</script>
+</body>
+</html>
